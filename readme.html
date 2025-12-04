@@ -1,0 +1,37 @@
+# Dino Runner (Canvas + PWA)
+
+Proyecto listo para desplegar. Sin dependencias ni build. Funciona offline (PWA).
+
+## Ejecutar localmente
+- Abre `index.html` directamente, o
+- Sirve la carpeta con un servidor estático (por ejemplo):
+  - Python: `python -m http.server 5173` → visita `http://localhost:5173`
+
+## Despliegue rápido
+### Netlify (Drag & Drop)
+1. Comprime la carpeta `dino-runner` en un archivo `.zip`.
+2. Ve a [https://app.netlify.com/drop](https://app.netlify.com/drop).
+3. Sube el `.zip`.
+4. Netlify desplegará tu juego y te dará una URL pública.
+
+### GitHub Pages
+1. Crea un repo y sube todos los archivos.
+2. En Settings > Pages, selecciona Source: `main` y Folder: `/root`.
+3. Espera 1–2 minutos; publicará en `https://tuusuario.github.io/nombre-repo`.
+
+### Vercel
+1. New Project → importa el repo.
+2. Framework: `Other`. Output directory: `.`.
+3. Deploy → `https://tu-proyecto.vercel.app`.
+
+## Controles
+- Teclado: Espacio o ↑ para saltar. Enter para iniciar/reiniciar.
+- Móvil: toca el canvas para saltar o reiniciar.
+
+## Personalización
+- Cambia tamaño del canvas en `index.html` (`width="800" height="300"`).
+- Ajusta dificultad en `game.js` (`speed`, `gravity`, intervalo de spawn`).
+
+## Versículo inicial
+Al abrir el juego, se muestra **Mateo 6:33**:  
+*"Mas buscad primeramente el reino de Dios y su justicia, y todas estas cosas os serán añadidas."*

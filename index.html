@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dino Runner</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#222222" />
+  <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABGdBTUEAALGPC/xhBQAAABl0RVh0Q3JlYXRpb24gVGltZQAwMS8wMS8wMkQ3HfQAAABGUExURQAAAP///+bm5u7u7u3t7eTk5Ovr6+Xl5ejo6Ozs7Onp6eLi4uHh4e3t7e/v79/f3+Dg4N/f39jY2N7e3tDQ0NPT09zc3OAgIB3d3eF+0WMAAAAHcSURBVBjTY2AgB2JgYGBgYJABJgYwYgBiAAvwGg0gkA4QHkQFQhQJwACwEw0QyKf1gAAA1CwqG2kJr7gAAAABJRU5ErkJggg==" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <canvas id="game" width="800" height="300"></canvas>
+    <div class="hud">
+      <div class="left">
+        <button id="btnStart" class="btn">Iniciar / Reiniciar</button>
+        <span class="hint">Salta con Espacio o ↑ (móvil: toca la pantalla)</span>
+      </div>
+      <div class="right">
+        <span>Puntuación: <strong id="score">0</strong></span>
+        <span>Récord: <strong id="hiscore">0</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+  </script>
+  <script src="game.js"></script>
+</body>
+</html>

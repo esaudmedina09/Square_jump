@@ -1,0 +1,16 @@
+{
+  "name": "Dino Runner",
+  "short_name": "Dino",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#222222",
+  "theme_color": "#222222",
+  "icons": [
+    {
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABGdBTUEAALGPC/xhBQAAABl0RVh0Q3JlYXRpb24gVGltZQAwMS8wMS8wMkQ3HfQAAACCSURBVGje7ZbBCYQwEEXZTQ2QGQnYgJgQkQkQkQm4C6pVb8hCk7WmO4w3RNrTq0QvYm5uX1m3FvL8r1o7oQJcC8Y3v6wCkqRjN1bWmYF6b1Qp5C3lQb3oNQf9sI2ozV3P0j3CjzYwqCwQm4mSg8kqTQKp3g3QkY5ZbO0Qb6qfB5JmZk7cQy7y2E4lEwVb6wT1l8f7G0jHhGskgC8oLwYQeG+fQ5y0hQO0j3oYQy0QmI0pJQwU5V5bXw2rWQk2m+QfQy2q3y0p+3bYcUQwEJQOkQmEQAQK3oCz8vQxwAAcC1zRkP5EwAAAABJRU5ErkJggg==",
+      "sizes": "48x48",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
