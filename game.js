@@ -15,7 +15,7 @@
   let speed = 6, spawnTimer = 0;
 
   const dino = { x: 50, y: groundY - 40, w: 44, h: 40, vy: 0, jumping: false, animTime: 0 };
-  const obstacles = [], clouds = [], groundSegments = [];
+  const obstacles = [], clouds = [2], groundSegments = [];
 
   for (let i = 0; i < 3; i++) groundSegments.push({ x: i * W, y: groundY, w: W, h: 40 });
   for (let i = 0; i < 3; i++) clouds.push({ x: i * 300 + 200, y: 50 + Math.random() * 60, w: 60, h: 24, speed: 1 + Math.random() * 0.6 });
@@ -93,7 +93,7 @@
   }
 
   function spawnObstacle() {
-    const types = [ { w: 24, h: 20 }, { w: 28, h: 24 }, { w: 34, h: 28 } ]; // más bajos
+    const types = [ { w: 2, h: 2 }, { w: 2, h: 4 }, { w: 4, h: 6 } ]; // más bajos
     const t = types[Math.floor(Math.random() * types.length)];
     obstacles.push({ x: W + 20, y: groundY - t.h, w: t.w, h: t.h });
   }
