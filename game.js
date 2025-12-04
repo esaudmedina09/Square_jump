@@ -14,7 +14,7 @@
   const gravity = 3, groundY = H - 3;
   let speed = 7, spawnTimer = 1;
 
-  const dino = { x: 2, y: groundY - 3, w: 4, h: 4, vy: 0, jumping: false, animTime: 0 };
+  const dino = { x: 1, y: groundY - 2, w: 2, h: 3, vy: 0, jumping: false, animTime: 0 };
   const obstacles = [2], clouds = [3], groundSegments = [3];
 
   for (let i = 0; i < 3; i++) groundSegments.push({ x: i * W, y: groundY, w: W, h: 4 });
@@ -75,8 +75,10 @@
     // Colisiones con obstáculos
     for (const ob of obstacles) {
       if (intersects(dino, ob)) {
-        // Si el dino cae desde arriba sobre el obstáculo se queda arriba deslizando sin morir
-        if (dino.vy > 0 && dino.y + dino.h <= ob.y + 10) {
+        // Después (una comprobación más precisa para aterrizar justo encima del borde superior):
+// Comprueba si la parte inferior del dino está muy cerca de la parte superior del obstáculo
+if (dino.vy > 0 && dino.y + dino.h >= ob.y && dino.y + dino.h <= ob.y + 3) {
+
           dino.y = ob.y - dino.h; // lo coloca encima
           dino.vy = 0;
           dino.jumping = false;
