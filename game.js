@@ -15,7 +15,7 @@
   let speed = 7, spawnTimer = 1;
 
   const dino = { x: 2, y: groundY - 3, w: 4, h: 4, vy: 0, jumping: false, animTime: 0 };
-  const obstacles = [2], clouds = [2], groundSegments = [3];
+  const obstacles = [2], clouds = [3], groundSegments = [3];
 
   for (let i = 0; i < 3; i++) groundSegments.push({ x: i * W, y: groundY, w: W, h: 4 });
   for (let i = 0; i < 3; i++) clouds.push({ x: i * 30 + 20, y: 5 + Math.random() * 6, w: 6, h: 2, speed: 1 + Math.random() * 0.6 });
@@ -36,8 +36,8 @@
 
   function jump() {
     if (gameOver) return;
-    if (!running) { startGame(); return; }
-    if (!dino.jumping) { dino.vy = -16; dino.jumping = true; } // salto más alto y doble
+    if (!running) { startGame(); continue; }
+    if (!dino.jumping) { dino.vy = -16; dino.jumping = true; } // salto más alto y triple
   }
 
   let last = performance.now();
