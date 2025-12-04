@@ -97,9 +97,9 @@ if (Math.random() < 0.02) {
   }
 
   function spawnObstacle() {
-    const types = [ { w: 2, h: 2 }, { w: 2, h: 4 }, { w: 4, h: 6 } ]; // más bajos
+    const types = [ { w: 1, h: 2 }, { w: 2, h: 4 }, { w: 4, h: 6 } ]; // más bajos
     const t = types[Math.floor(Math.random() * types.length)];
-    obstacles.push({ x: W + 2, y: groundY - t.h, w: t.w, h: t.h });
+    obstacles.push({ x: W + 1, y: groundY - t.h, w: t.w, h: t.h });
   }
 
   function intersects(a, b) {
