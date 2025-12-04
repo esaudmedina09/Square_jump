@@ -11,14 +11,14 @@
   let running = false, gameOver = false, score = 0;
   let hiScore = parseInt(localStorage.getItem('dino_hiscore') || '0', 10);
 
-  const gravity = 2, groundY = H - 3;
+  const gravity = 3, groundY = H - 3;
   let speed = 7, spawnTimer = 1;
 
   const dino = { x: 2, y: groundY - 3, w: 4, h: 4, vy: 0, jumping: false, animTime: 0 };
-  const obstacles = [], clouds = [2], groundSegments = [];
+  const obstacles = [2], clouds = [2], groundSegments = [3];
 
-  for (let i = 0; i < 3; i++) groundSegments.push({ x: i * W, y: groundY, w: W, h: 40 });
-  for (let i = 0; i < 3; i++) clouds.push({ x: i * 30 + 20, y: 5 + Math.random() * 60, w: 60, h: 24, speed: 1 + Math.random() * 0.6 });
+  for (let i = 0; i < 3; i++) groundSegments.push({ x: i * W, y: groundY, w: W, h: 4 });
+  for (let i = 0; i < 3; i++) clouds.push({ x: i * 30 + 20, y: 5 + Math.random() * 6, w: 6, h: 2, speed: 1 + Math.random() * 0.6 });
 
   window.addEventListener('keydown', (e) => {
     if (e.code === 'Space' || e.code === 'ArrowUp') { jump(); e.preventDefault(); }
