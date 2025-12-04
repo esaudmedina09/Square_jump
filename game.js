@@ -13,7 +13,7 @@
   let hiScore = parseInt(localStorage.getItem('dino_hiscore') || '0', 10);
 
   // Valores constantes
-  const GRAVITY = 1.2; // Renombrado a mayúsculas como buena práctica para constantes lógicas
+  const GRAVITY = 1.2; 
   const GROUND_Y = H - 3;
   
   let speed = 7;
@@ -96,22 +96,34 @@
     spawnTimer -= dt;
     if (spawnTimer <= 0) { 
       spawnObstacle(); 
-      // Ajuste de tiempo de spawn para que sea más fluido
       spawnTimer = 1.2 + Math.random() * 1.1 / (speed / 7); 
     }
     for (const ob of obstacles) ob.x -= speed;
     // Eliminar obstáculos que salen de la pantalla
     while (obstacles.length && obstacles[0].x + obstacles[0].w < 0) obstacles.shift();
 
-    // Colisiones
+    // --- LÓGICA DE COLISIÓN MEJORADA (Aterrizaje encima de obstáculos) ---
     for (const ob of obstacles) {
       if (intersects(dino, ob)) {
-        // Lógica de Game Over simplificada
-        running = false;
-        gameOver = true;
-        // Podrías añadir un 'break' aquí si no quieres comprobar más obstáculos tras el impacto
+        // Comprobación específica para aterrizar encima:
+        // 1. El dino está cayendo (vy > 0)
+        // 2. La parte inferior del dino está muy cerca del borde superior del obstáculo.
+        if (dino.vy > 0 && (dino.y + dino.h) <= (ob.y + 5) ) { 
+          
+          // Aterrizaje exitoso:
+          dino.y = ob.y - dino.h; // Coloca el dino perfectamente encima
+          dino.vy = 0;             // Detiene la caída
+          dino.jumping = false;    // Ya no está saltando
+          
+        } else {
+          // Colisión lateral o por debajo: Game Over
+          running = false;
+          gameOver = true;
+          break; // Salimos del bucle si morimos para evitar comprobaciones innecesarias
+        }
       }
     }
+    // --- FIN LÓGICA DE COLISIÓN MEJORADA ---
 
     score += Math.floor(speed * 0.2);
     updateHUD();
@@ -147,14 +159,12 @@
     // Limpiamos el canvas al inicio del frame
     ctx.clearRect(0, 0, W, H);
 
-    // Detectar tema oscuro/claro una vez por frame (vale, pero mejor fuera si es estático)
     const isDark = matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
     ctx.fillStyle = isDark ? '#222' : '#fafafa';
     ctx.fillRect(0, 0, W, H);
 
     // Suelo
     ctx.fillStyle = isDark ? '#444' : '#ddd';
-    // Palabra clave 'intermittent' eliminada
     for (const seg of groundSegments) ctx.fillRect(seg.x, seg.y, seg.w, seg.h);
 
     // Nubes
@@ -167,12 +177,10 @@
 
     // Obstáculos
     ctx.fillStyle = '#e76f51';
-    // Palabra clave 'intermittent' eliminada
     for (const ob of obstacles) ctx.fillRect(ob.x, ob.y, ob.w, ob.h);
 
     // UI y Texto
     ctx.fillStyle = isDark ? '#eee' : '#333';
-    // Definimos la fuente antes de dibujar el texto
     ctx.font = 'bold 16px system-ui, sans-serif'; 
 
     if (!running && !gameOver) {
@@ -183,7 +191,7 @@
     }
 
     if (gameOver) {
-      centeredText('Game Over', W / 2, 80); // Y ajustado a una posición más visible
+      centeredText('Game Over', W / 2, 80); 
       ctx.font = 'bold 16px system-ui, sans-serif';
       centeredText('Presiona Iniciar, Enter o toca para reiniciar', W / 2, 110);
     }
