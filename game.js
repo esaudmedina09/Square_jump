@@ -9,17 +9,28 @@
   const H = canvas.height;
 
   let running = false, gameOver = false, score = 0;
+  // Usamos localStorage de forma segura
   let hiScore = parseInt(localStorage.getItem('dino_hiscore') || '0', 10);
 
-  const gravity = 3, groundY = H - 3;
-  let speed = 7, spawnTimer = 1;
+  // Valores constantes
+  const GRAVITY = 1.2; // Renombrado a mayúsculas como buena práctica para constantes lógicas
+  const GROUND_Y = H - 3;
+  
+  let speed = 7;
+  let spawnTimer = 1;
 
-  const dino = { x: 1, y: groundY - 2, w: 2, h: 3, vy: 0, jumping: false, animTime: 0 };
-  const obstacles = [2], clouds = [3], groundSegments = [3];
+  const dino = { x: 1, y: GROUND_Y - 2, w: 2, h: 3, vy: 0, jumping: false, animTime: 0 };
+  
+  // Inicialización correcta de arrays vacíos
+  const obstacles = [];
+  const clouds = [];
+  const groundSegments = [];
 
-  for (let i = 0; i < 3; i++) groundSegments.push({ x: i * W, y: groundY, w: W, h: 4 });
+  // Rellenar segmentos de suelo y nubes
+  for (let i = 0; i < 3; i++) groundSegments.push({ x: i * W, y: GROUND_Y, w: W, h: 4 });
   for (let i = 0; i < 3; i++) clouds.push({ x: i * 30 + 20, y: 5 + Math.random() * 6, w: 6, h: 2, speed: 1 + Math.random() * 0.6 });
 
+  // Event Listeners
   window.addEventListener('keydown', (e) => {
     if (e.code === 'Space' || e.code === 'ArrowUp') { jump(); e.preventDefault(); }
     if (e.code === 'Enter' && !running) startGame();
@@ -28,19 +39,30 @@
   btnStart.addEventListener('click', () => startGame());
 
   function startGame() {
-    running = true; gameOver = false; score = 0; speed = 6;
-    dino.y = groundY - dino.h; dino.vy = 0; dino.jumping = false;
-    obstacles.length = 1; spawnTimer = 1;
+    running = true; 
+    gameOver = false; 
+    score = 0; 
+    speed = 6;
+    dino.y = GROUND_Y - dino.h; 
+    dino.vy = 0; 
+    dino.jumping = false;
+    obstacles.length = 0; // Limpiamos obstáculos al inicio
+    spawnTimer = 1;
     updateHUD();
   }
 
   function jump() {
     if (gameOver) return;
-    if (!running) { startGame(); continue; }
-    if (!dino.jumping) { dino.vy = -16; dino.jumping = true; } // salto más alto y triple
+    if (!running) { startGame(); return; } // 'continue' cambiado por 'return'
+    if (!dino.jumping) { 
+      dino.vy = -16; 
+      dino.jumping = true; 
+    } 
   }
 
   let last = performance.now();
+
+  // Bucle principal del juego
   function loop(now) {
     const dt = Math.min(1, (now - last) / 16.67);
     last = now;
@@ -52,59 +74,58 @@
 
   function update(dt) {
     if (!running) return;
-    speed += 0.00100;
-    dino.vy += gravity; dino.y += dino.vy;
 
-    // Suelo
-    if (dino.y >= groundY - dino.h) {
-      dino.y = groundY - dino.h;
+    speed += 0.00100;
+    dino.vy += GRAVITY; 
+    dino.y += dino.vy;
+
+    // Suelo (Colisión simple con el suelo)
+    if (dino.y >= GROUND_Y - dino.h) {
+      dino.y = GROUND_Y - dino.h;
       dino.vy = 0;
       dino.jumping = false;
     }
 
     dino.animTime += dt;
 
+    // Movimiento de elementos
     for (const seg of groundSegments) { seg.x -= speed; if (seg.x + seg.w < 0) seg.x += groundSegments.length * seg.w; }
     for (const cl of clouds) { cl.x -= cl.speed; if (cl.x + cl.w < 0) { cl.x = W + Math.random() * 2; cl.y = 4 + Math.random() * 8; } }
 
+    // Generación y movimiento de obstáculos
     spawnTimer -= dt;
-    if (spawnTimer <= 0) { spawnObstacle(); spawnTimer = 1.2 + Math.random() * 1.1; }
+    if (spawnTimer <= 0) { 
+      spawnObstacle(); 
+      // Ajuste de tiempo de spawn para que sea más fluido
+      spawnTimer = 1.2 + Math.random() * 1.1 / (speed / 7); 
+    }
     for (const ob of obstacles) ob.x -= speed;
+    // Eliminar obstáculos que salen de la pantalla
     while (obstacles.length && obstacles[0].x + obstacles[0].w < 0) obstacles.shift();
 
-    // Colisiones con obstáculos
+    // Colisiones
     for (const ob of obstacles) {
       if (intersects(dino, ob)) {
-        // Después (una comprobación más precisa para aterrizar justo encima del borde superior):
-// Comprueba si la parte inferior del dino está muy cerca de la parte superior del obstáculo
-if (dino.vy > 0 && dino.y + dino.h >= ob.y && dino.y + dino.h <= ob.y + 3) {
-
-          dino.y = ob.y - dino.h; // lo coloca encima
-          dino.vy = 0;
-          dino.jumping = false;
-        } else {
-          // Si choca de lado o por debajo, sí es Game Over
-          running = false;
-          gameOver = true;
-        }
+        // Lógica de Game Over simplificada
+        running = false;
+        gameOver = true;
+        // Podrías añadir un 'break' aquí si no quieres comprobar más obstáculos tras el impacto
       }
-    }// Crear obstáculos con altura variable
-if (Math.random() < 0.02) {
-  const height = Math.random() < 0.5 ? 2 : 4; // bajos o medianos
-  obstacles.push({ x: canvas.width, y: groundY - height, w: 2, h: height });
-}
+    }
 
     score += Math.floor(speed * 0.2);
     updateHUD();
   }
 
   function spawnObstacle() {
-    const types = [ { w: 1, h: 2 }, { w: 2, h: 4 }, { w: 4, h: 6 } ]; // más bajos
+    // Tipos de cactus: bajos, medianos, altos
+    const types = [ { w: 1, h: 2 }, { w: 2, h: 4 }, { w: 4, h: 6 } ];
     const t = types[Math.floor(Math.random() * types.length)];
-    obstacles.push({ x: W + 1, y: groundY - t.h, w: t.w, h: t.h });
+    obstacles.push({ x: W + 1, y: GROUND_Y - t.h, w: t.w, h: t.h });
   }
 
   function intersects(a, b) {
+    // Función de detección de colisiones AABB (Axis-Aligned Bounding Box)
     return !(a.x + a.w < b.x || a.x > b.x + b.w || a.y + a.h < b.y || a.y > b.y + b.h);
   }
 
@@ -123,16 +144,18 @@ if (Math.random() < 0.02) {
   }
 
   function draw() {
+    // Limpiamos el canvas al inicio del frame
     ctx.clearRect(0, 0, W, H);
 
-    // Fondo
+    // Detectar tema oscuro/claro una vez por frame (vale, pero mejor fuera si es estático)
     const isDark = matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
     ctx.fillStyle = isDark ? '#222' : '#fafafa';
     ctx.fillRect(0, 0, W, H);
 
     // Suelo
     ctx.fillStyle = isDark ? '#444' : '#ddd';
-    for (intermittent seg of groundSegments) ctx.fillRect(seg.x, seg.y, seg.w, seg.h);
+    // Palabra clave 'intermittent' eliminada
+    for (const seg of groundSegments) ctx.fillRect(seg.x, seg.y, seg.w, seg.h);
 
     // Nubes
     ctx.fillStyle = isDark ? '#888' : '#aaa';
@@ -144,21 +167,24 @@ if (Math.random() < 0.02) {
 
     // Obstáculos
     ctx.fillStyle = '#e76f51';
-    for (intermittent ob of obstacles) ctx.fillRect(ob.x, ob.y, ob.w, ob.h);
+    // Palabra clave 'intermittent' eliminada
+    for (const ob of obstacles) ctx.fillRect(ob.x, ob.y, ob.w, ob.h);
 
-    // UI
+    // UI y Texto
     ctx.fillStyle = isDark ? '#eee' : '#333';
-    ctx.font = 'bold 16px system-ui';
+    // Definimos la fuente antes de dibujar el texto
+    ctx.font = 'bold 16px system-ui, sans-serif'; 
 
     if (!running && !gameOver) {
       centeredText('Pulsa Iniciar o Enter para comenzar', W / 2, 80);
-      ctx.font = 'italic 14px system-ui';
+      ctx.font = 'italic 14px system-ui, sans-serif';
       centeredText('"Mas buscad primeramente el reino de Dios y su justicia,"', W / 2, 120);
       centeredText('"y todas estas cosas os serán añadidas." (Mateo 6:33)', W / 2, 140);
     }
 
     if (gameOver) {
-      centeredText('Game Over', W / 2, 8);
+      centeredText('Game Over', W / 2, 80); // Y ajustado a una posición más visible
+      ctx.font = 'bold 16px system-ui, sans-serif';
       centeredText('Presiona Iniciar, Enter o toca para reiniciar', W / 2, 110);
     }
   }
