@@ -30,7 +30,7 @@
   function startGame() {
     running = true; gameOver = false; score = 0; speed = 6;
     dino.y = groundY - dino.h; dino.vy = 0; dino.jumping = false;
-    obstacles.length = 0; spawnTimer = 0;
+    obstacles.length = 1; spawnTimer = 1;
     updateHUD();
   }
 
@@ -52,7 +52,7 @@
 
   function update(dt) {
     if (!running) return;
-    speed += 0.0008;
+    speed += 0.00100;
     dino.vy += gravity; dino.y += dino.vy;
 
     // Suelo
@@ -65,7 +65,7 @@
     dino.animTime += dt;
 
     for (const seg of groundSegments) { seg.x -= speed; if (seg.x + seg.w < 0) seg.x += groundSegments.length * seg.w; }
-    for (const cl of clouds) { cl.x -= cl.speed; if (cl.x + cl.w < 0) { cl.x = W + Math.random() * 200; cl.y = 40 + Math.random() * 80; } }
+    for (const cl of clouds) { cl.x -= cl.speed; if (cl.x + cl.w < 0) { cl.x = W + Math.random() * 2; cl.y = 4 + Math.random() * 8; } }
 
     spawnTimer -= dt;
     if (spawnTimer <= 0) { spawnObstacle(); spawnTimer = 1.2 + Math.random() * 1.1; }
