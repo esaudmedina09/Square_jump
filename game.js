@@ -86,7 +86,11 @@
           gameOver = true;
         }
       }
-    }
+    }// Crear obstáculos con altura variable
+if (Math.random() < 0.02) {
+  const height = Math.random() < 0.5 ? 20 : 40; // bajos o medianos
+  obstacles.push({ x: canvas.width, y: groundY - height, w: 20, h: height });
+}
 
     score += Math.floor(speed * 0.2);
     updateHUD();
