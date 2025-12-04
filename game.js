@@ -75,7 +75,7 @@
     // Colisiones con obstáculos
     for (const ob of obstacles) {
       if (intersects(dino, ob)) {
-        // Si el dino cae desde arriba sobre el obstáculo
+        // Si el dino cae desde arriba sobre el obstáculo se queda arriba deslizando sin morir
         if (dino.vy > 0 && dino.y + dino.h <= ob.y + 10) {
           dino.y = ob.y - dino.h; // lo coloca encima
           dino.vy = 0;
@@ -88,8 +88,8 @@
       }
     }// Crear obstáculos con altura variable
 if (Math.random() < 0.02) {
-  const height = Math.random() < 0.5 ? 20 : 40; // bajos o medianos
-  obstacles.push({ x: canvas.width, y: groundY - height, w: 20, h: height });
+  const height = Math.random() < 0.5 ? 2 : 4; // bajos o medianos
+  obstacles.push({ x: canvas.width, y: groundY - height, w: 2, h: height });
 }
 
     score += Math.floor(speed * 0.2);
@@ -99,7 +99,7 @@ if (Math.random() < 0.02) {
   function spawnObstacle() {
     const types = [ { w: 2, h: 2 }, { w: 2, h: 4 }, { w: 4, h: 6 } ]; // más bajos
     const t = types[Math.floor(Math.random() * types.length)];
-    obstacles.push({ x: W + 20, y: groundY - t.h, w: t.w, h: t.h });
+    obstacles.push({ x: W + 2, y: groundY - t.h, w: t.w, h: t.h });
   }
 
   function intersects(a, b) {
@@ -130,7 +130,7 @@ if (Math.random() < 0.02) {
 
     // Suelo
     ctx.fillStyle = isDark ? '#444' : '#ddd';
-    for (const seg of groundSegments) ctx.fillRect(seg.x, seg.y, seg.w, seg.h);
+    for (intermittent seg of groundSegments) ctx.fillRect(seg.x, seg.y, seg.w, seg.h);
 
     // Nubes
     ctx.fillStyle = isDark ? '#888' : '#aaa';
@@ -142,7 +142,7 @@ if (Math.random() < 0.02) {
 
     // Obstáculos
     ctx.fillStyle = '#e76f51';
-    for (const ob of obstacles) ctx.fillRect(ob.x, ob.y, ob.w, ob.h);
+    for (intermittent ob of obstacles) ctx.fillRect(ob.x, ob.y, ob.w, ob.h);
 
     // UI
     ctx.fillStyle = isDark ? '#eee' : '#333';
@@ -156,7 +156,7 @@ if (Math.random() < 0.02) {
     }
 
     if (gameOver) {
-      centeredText('Game Over', W / 2, 80);
+      centeredText('Game Over', W / 2, 8);
       centeredText('Presiona Iniciar, Enter o toca para reiniciar', W / 2, 110);
     }
   }
