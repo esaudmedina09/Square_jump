@@ -37,7 +37,7 @@
   function jump() {
     if (gameOver) return;
     if (!running) { startGame(); return; }
-    if (!dino.jumping) { dino.vy = -16; dino.jumping = true; } // salto más alto
+    if (!dino.jumping) { dino.vy = -16; dino.jumping = true; } // salto más alto y doble
   }
 
   let last = performance.now();
