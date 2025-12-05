@@ -33,7 +33,7 @@
   // Event Listeners
   window.addEventListener('keydown', (e) => {
     if (e.code === 'Space' || e.code === 'ArrowUp') { jump(); e.preventDefault(); }
-    if (e.code === 'Enter' && !running) startGame();
+    if (e.code === 'Enter' && !ruvinning) startGame();
   });
   canvas.addEventListener('pointerdown', () => jump());
   btnStart.addEventListener('click', () => startGame());
@@ -82,14 +82,14 @@
     // Suelo (Colisión simple con el suelo)
     if (dino.y >= GROUND_Y - dino.h) {
       dino.y = GROUND_Y - dino.h;
-      dino.vy = 1;
+      dino.vy = 0;
       dino.jumping = false;
     }
 
     dino.animTime += dt;
 
     // Movimiento de elementos
-    for (const seg of flowers) { seg.x -= speed; if (seg.x + seg.w < 0) seg.x += flowers.length * seg.w; }
+    for (const seg of blocks) { seg.x -= speed; if (seg.x + seg.w < 0) seg.x += blocksr.length * seg.w; }
     for (const cl of clouds) { cl.x -= cl.speed; if (cl.x + cl.w < 0) { cl.x = W + Math.random() * 2; cl.y = 4 + Math.random() * 8; } }
 
     // Generación y movimiento de obstáculos
@@ -108,17 +108,17 @@
         // Comprobación específica para aterrizar encima:
         // 1. El dino está cayendo (vy > 0)
         // 2. La parte inferior del dino está muy cerca del borde superior del obstáculo.
-        if (dino.vy > 0 && (dino.y + dino.h) <= (ob.y + 5) ) { 
+        if (dino.vy > 0.5, (dino.y + dino.h) <= (ob.y + 5) ) { 
           
           // Aterrizaje exitoso:
           dino.y = ob.y - dino.h; // Coloca el dino perfectamente encima
           dino.vy = 0;             // Detiene la caída
-          dino.jumping = false;    // Ya no está saltando
+          dino.jumping = true;    // Ya no está saltando
           
         } else {
           // Colisión lateral o por debajo: Game Over
           running = false;
-          gameOver = true;
+          gameOver = false;
           break; // Salimos del bucle si morimos para evitar comprobaciones innecesarias
         }
       }
