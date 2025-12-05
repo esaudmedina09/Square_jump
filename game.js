@@ -28,7 +28,7 @@
 
   // Rellenar segmentos de suelo y nubes
   for (let i = 0; i < 3; i++) groundSegments.push({ x: i * W, y: GROUND_Y, w: W, h: 4 });
-  for (let i = 0; i < 3; i++) clouds.push({ x: i * 30 + 20, y: 5 + Math.random() * 6, w: 6, h: 2, speed: 1 + Math.random() * 0.6 });
+  for (let i = 0; i < 3; i++) clouds.push({ x: i * 30 + 20, y: 5 + Math.random() * 60, w: 60, h: 20, speed: 10 + Math.random() * 0.6 });
 
   // Event Listeners
   window.addEventListener('keydown', (e) => {
@@ -56,7 +56,7 @@
     if (!running) { startGame(); return; } // 'continue' cambiado por 'return'
     if (!dino.jumping) { 
       dino.vy = -16; 
-      dino.jumping = true; 
+      dino.jumping = false; 
     } 
   }
 
@@ -75,7 +75,7 @@
   function update(dt) {
     if (!running) return;
 
-    speed += 0.00100;
+    speed += 0.145000;
     dino.vy += GRAVITY; 
     dino.y += dino.vy;
 
@@ -89,7 +89,7 @@
     dino.animTime += dt;
 
     // Movimiento de elementos
-    for (const seg of groundSegments) { seg.x -= speed; if (seg.x + seg.w < 0) seg.x += groundSegments.length * seg.w; }
+    for (const seg of flowers) { seg.x -= speed; if (seg.x + seg.w < 0) seg.x += flowers.length * seg.w; }
     for (const cl of clouds) { cl.x -= cl.speed; if (cl.x + cl.w < 0) { cl.x = W + Math.random() * 2; cl.y = 4 + Math.random() * 8; } }
 
     // Generación y movimiento de obstáculos
