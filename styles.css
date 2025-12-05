@@ -2,23 +2,37 @@
 * { box-sizing: border-box; }
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
   display: grid;
   place-items: center;
   min-height: 100vh;
   background: #f2f2f2;
 }
-@media (prefers-color-scheme: dark) { body { background: #111; } }
+@media (prefers-color-scheme: dark) { 
+  body { 
+    background: #111; 
+    color: #ddd;
+  } 
+}
 
-.container { width: 860px; max-width: 100%; padding: 16px; }
+.container { 
+  width: 860px; 
+  max-width: 100%; 
+  padding: 16px; 
+}
 canvas#game {
   width: 100%;
   border: 2px solid #333;
   background: #fff;
-  display: flowers;
+  display: block; /* CORREGIDO: era "flowers" */
+  image-rendering: pixelated; /* Opcional: para mantener pixeles nítidos */
+  image-rendering: crisp-edges;
 }
 @media (prefers-color-scheme: dark) {
-  canvas#game { background: #222; border-color: #666; }
+  canvas#game { 
+    background: #222; 
+    border-color: #666; 
+  }
 }
 .hud {
   margin-top: 10px;
@@ -28,13 +42,64 @@ canvas#game {
   gap: 8px;
   color: #333;
 }
-@media (prefers-color-scheme: dark) { .hud { color: #ddd; } }
+@media (prefers-color-scheme: dark) { 
+  .hud { 
+    color: #ddd; 
+  } 
+}
 .btn {
   padding: 8px 12px;
   border: 1px solid #333;
   background: #fff;
+  color: #333; /* Añadido: para contraste en modo claro */
   cursor: pointer;
+  border-radius: 4px; /* Opcional: para mejor apariencia */
+  font-family: inherit; /* Hereda la fuente del body */
+  font-size: 1rem;
 }
-@media (prefers-color-scheme: dark) { .btn { background: #333; color: #fff; border-color: #666; } }
-.hint { margin-left: 8px; opacity: 0.8; font-size: 0.9rem; }
-.right span { margin-left: 12px; }
+.btn:hover {
+  background: #f0f0f0; /* Efecto hover */
+}
+@media (prefers-color-scheme: dark) { 
+  .btn { 
+    background: #333; 
+    color: #fff; 
+    border-color: #666; 
+  }
+  .btn:hover {
+    background: #444; /* Efecto hover en modo oscuro */
+  }
+}
+.hint { 
+  margin-left: 8px; 
+  opacity: 0.8; 
+  font-size: 0.9rem; 
+}
+.right span { 
+  margin-left: 12px; 
+  font-weight: bold; /* Para destacar los números */
+}
+
+/* Para mejorar la experiencia táctil en móviles */
+@media (max-width: 768px) {
+  .container {
+    padding: 8px;
+  }
+  .hud {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .right {
+    display: flex;
+    justify-content: space-between;
+  }
+  .hint {
+    margin-left: 0;
+    text-align: center;
+    margin-top: 4px;
+  }
+  .btn {
+    padding: 10px 16px; /* Botones más grandes para móvil */
+  }
+}
