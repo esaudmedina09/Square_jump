@@ -8,15 +8,15 @@
   const W = canvas.width;
   const H = canvas.height;
 
-  let running = false, gameOver = false, score = 0;
+  let running = false, gameOver = true, score = 0;
   // Usamos localStorage de forma segura
   let hiScore = parseInt(localStorage.getItem('dino_hiscore') || '0', 10);
 
   // Valores constantes
-  const GRAVITY = 1.2; 
-  const GROUND_Y = H - 3;
+  const GRAVITY = 0.7; 
+  const GROUND_Y = H - 1;
   
-  let speed = 7;
+  let speed = 9;
   let spawnTimer = 1;
 
   const dino = { x: 1, y: GROUND_Y - 2, w: 2, h: 3, vy: 0, jumping: false, animTime: 0 };
@@ -46,7 +46,7 @@
     dino.y = GROUND_Y - dino.h; 
     dino.vy = 0; 
     dino.jumping = false;
-    obstacles.length = 0; // Limpiamos obstáculos al inicio
+    obstacles.length = 1; // Limpiamos obstáculos al inicio
     spawnTimer = 1;
     updateHUD();
   }
@@ -82,7 +82,7 @@
     // Suelo (Colisión simple con el suelo)
     if (dino.y >= GROUND_Y - dino.h) {
       dino.y = GROUND_Y - dino.h;
-      dino.vy = 0;
+      dino.vy = 1;
       dino.jumping = false;
     }
 
