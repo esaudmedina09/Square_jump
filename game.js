@@ -46,7 +46,7 @@
     dino.y = GROUND_Y - dino.h; 
     dino.vy = 0; 
     dino.jumping = false;
-    obstacles.length = 1; // Limpiamos obstáculos al inicio
+    obstacles.length = 2; // Limpiamos obstáculos al inicio
     spawnTimer = 1;
     updateHUD();
   }
@@ -108,17 +108,17 @@
         // Comprobación específica para aterrizar encima:
         // 1. El dino está cayendo (vy > 0)
         // 2. La parte inferior del dino está muy cerca del borde superior del obstáculo.
-        if (dino.vy > 0.5, (dino.y + dino.h) <= (ob.y + 5) ) { 
+        if (dino.vy > 0.1, (dino.y + dino.h) <= (ob.y + 1) ) { 
           
           // Aterrizaje exitoso:
           dino.y = ob.y - dino.h; // Coloca el dino perfectamente encima
-          dino.vy = 0;             // Detiene la caída
+          dino.vy = 0.1;             // Detiene la caída
           dino.jumping = true;    // Ya no está saltando
           
         } else {
           // Colisión lateral o por debajo: Game Over
           running = false;
-          gameOver = false;
+          gameOver = true;
           break; // Salimos del bucle si morimos para evitar comprobaciones innecesarias
         }
       }
@@ -131,7 +131,7 @@
 
   function spawnObstacle() {
     // Tipos de cactus: bajos, medianos, altos
-    const types = [ { w: 1, h: 2 }, { w: 2, h: 4 }, { w: 4, h: 6 } ];
+    const types = [ { w: 10, h: 20 }, { w: 20, h: 40 }, { w: 40, h: 60 } ];
     const t = types[Math.floor(Math.random() * types.length)];
     obstacles.push({ x: W + 1, y: GROUND_Y - t.h, w: t.w, h: t.h });
   }
