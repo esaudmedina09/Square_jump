@@ -16,8 +16,9 @@
   
   let speed = 9;
   let spawnTimer = 1;
+  let lastObstacleLandedOn = null; // Para rastrear en qué obstáculo está el dino
 
-  const dino = { x: 1, y: GROUND_Y - 2, w: 2, h: 3, vy: 0, jumping: false, animTime: 0 };
+  const dino = { x: 1, y: GROUND_Y - 2, w: 2, h: 3, vy: 0, jumping: false, animTime: 0, onObstacle: false };
   
   const obstacles = [];
   const clouds = [];
@@ -42,7 +43,9 @@
     dino.y = GROUND_Y - dino.h; 
     dino.vy = 0; 
     dino.jumping = false;
-    obstacles.length = 0; // CORREGIDO: Limpiamos completamente el array
+    dino.onObstacle = false;
+    lastObstacleLandedOn = null;
+    obstacles.length = 0;
     spawnTimer = 1;
     updateHUD();
   }
@@ -50,9 +53,13 @@
   function jump() {
     if (gameOver) return;
     if (!running) { startGame(); return; }
-    if (!dino.jumping) { 
+    
+    // Permitir saltar si está en el suelo o sobre un obstáculo
+    if (!dino.jumping || dino.onObstacle) { 
       dino.vy = -16; 
       dino.jumping = true; 
+      dino.onObstacle = false;
+      lastObstacleLandedOn = null;
     } 
   }
 
@@ -70,27 +77,31 @@
   function update(dt) {
     if (!running) return;
 
-    speed += 0.000145; // Reducido para que el juego dure más
+    speed += 0.000145;
     dino.vy += GRAVITY; 
     dino.y += dino.vy;
 
-    // Suelo (Colisión simple con el suelo)
-    if (dino.y >= GROUND_Y - dino.h) {
+    // Verificar suelo normal
+    let onGround = dino.y >= GROUND_Y - dino.h;
+    
+    if (onGround) {
       dino.y = GROUND_Y - dino.h;
       dino.vy = 0;
       dino.jumping = false;
+      dino.onObstacle = false;
+      lastObstacleLandedOn = null;
     }
 
     dino.animTime += dt;
 
-    // Movimiento de elementos - CORREGIDO: groundSegments en lugar de blocks
+    // Movimiento de elementos
     for (const seg of groundSegments) { 
-      seg.x -= speed; 
+      seg.x -= speed * dt * 60; // Multiplicar por dt * 60 para velocidad consistente
       if (seg.x + seg.w < 0) seg.x += groundSegments.length * seg.w; 
     }
     
     for (const cl of clouds) { 
-      cl.x -= cl.speed; 
+      cl.x -= cl.speed * dt; 
       if (cl.x + cl.w < 0) { 
         cl.x = W + Math.random() * 20; 
         cl.y = 40 + Math.random() * 20; 
@@ -104,52 +115,81 @@
       spawnTimer = 1.2 + Math.random() * 1.1 / (speed / 7); 
     }
     
-    for (const ob of obstacles) ob.x -= speed;
+    for (const ob of obstacles) {
+      ob.x -= speed * dt * 60; // Mover obstáculos
+    }
     
     // Eliminar obstáculos que salen de la pantalla
     while (obstacles.length && obstacles[0].x + obstacles[0].w < 0) obstacles.shift();
 
     // --- LÓGICA DE COLISIÓN MEJORADA ---
+    dino.onObstacle = false; // Resetear cada frame
+    
+    // Primero, verificar si estamos sobre algún obstáculo
+    let landedOnObstacle = null;
+    
     for (let i = obstacles.length - 1; i >= 0; i--) {
       const ob = obstacles[i];
       
-      if (intersects(dino, ob)) {
-        // Comprobación para aterrizar encima del obstáculo
+      // Verificar colisión
+      if (collisionDetected(dino, ob)) {
         const dinoBottom = dino.y + dino.h;
         const obTop = ob.y;
+        const tolerance = 5; // Tolerancia para aterrizaje
         
-        // Si el dino está cayendo (vy positivo) y su parte inferior está cerca de la parte superior del obstáculo
-        if (dino.vy > 0 && dinoBottom >= obTop - 2 && dinoBottom <= obTop + 5) {
-          
-          // Margen de error para el aterrizaje
-          const landingMargin = 3;
-          
-          if (Math.abs(dinoBottom - obTop) < landingMargin) {
-            // Aterrizaje exitoso
-            dino.y = ob.y - dino.h; // Coloca el dino perfectamente encima
-            dino.vy = 0; // Detiene la caída
-            dino.jumping = false; // Ya no está saltando (puede saltar de nuevo)
-            
-            // Permitir que el dino se deslice sobre el obstáculo
-            // El movimiento horizontal continuará naturalmente porque el obstáculo se mueve hacia la izquierda
-            continue; // Continuar sin marcar game over
-          }
+        // Si está cayendo y está cerca de la parte superior del obstáculo
+        if (dino.vy >= 0 && dinoBottom >= obTop - tolerance && dinoBottom <= obTop + tolerance) {
+          // Aterrizaje exitoso
+          landedOnObstacle = ob;
+          break;
+        } else {
+          // Colisión lateral o por debajo - GAME OVER
+          running = false;
+          gameOver = true;
+          return;
         }
-        
-        // Si no es un aterrizaje exitoso, es game over
-        running = false;
-        gameOver = true;
-        break;
       }
     }
-    // --- FIN LÓGICA DE COLISIÓN MEJORADA ---
+    
+    // Si aterrizamos en un obstáculo este frame
+    if (landedOnObstacle) {
+      dino.y = landedOnObstacle.y - dino.h;
+      dino.vy = 0;
+      dino.jumping = false;
+      dino.onObstacle = true;
+      lastObstacleLandedOn = landedOnObstacle;
+    } 
+    // Si ya estábamos en un obstáculo y el obstáculo todavía existe
+    else if (lastObstacleLandedOn && obstacles.includes(lastObstacleLandedOn)) {
+      // Mantenernos encima del obstáculo mientras nos movemos con él
+      dino.y = lastObstacleLandedOn.y - dino.h;
+      dino.vy = 0;
+      dino.jumping = false;
+      dino.onObstacle = true;
+    }
+    // Si el obstáculo sobre el que estábamos ya no existe
+    else if (lastObstacleLandedOn && !obstacles.includes(lastObstacleLandedOn)) {
+      lastObstacleLandedOn = null;
+      dino.onObstacle = false;
+      // El dino comenzará a caer naturalmente
+    }
 
     score += Math.floor(speed * 0.2);
     updateHUD();
   }
 
+  function collisionDetected(a, b) {
+    // Detección de colisión con márgenes ajustados
+    const marginX = 1; // Muy pequeño para colisiones laterales
+    const marginY = 2; // Para aterrizaje
+    
+    return !(a.x + a.w - marginX < b.x || 
+             a.x + marginX > b.x + b.w || 
+             a.y + a.h - marginY < b.y || 
+             a.y + marginY > b.y + b.h);
+  }
+
   function spawnObstacle() {
-    // Tipos de cactus: bajos, medianos, altos
     const types = [ 
       { w: 10, h: 20 }, 
       { w: 20, h: 40 }, 
@@ -160,19 +200,9 @@
       x: W + 1, 
       y: GROUND_Y - t.h, 
       w: t.w, 
-      h: t.h 
+      h: t.h,
+      id: Date.now() + Math.random() // ID único para rastrear
     });
-  }
-
-  function intersects(a, b) {
-    // Función de detección de colisiones AABB con margen para el aterrizaje
-    const marginX = 2; // Margen horizontal para que no sea tan estricto
-    const marginY = 1; // Margen vertical
-    
-    return !(a.x + a.w - marginX < b.x || 
-             a.x + marginX > b.x + b.w || 
-             a.y + a.h - marginY < b.y || 
-             a.y + marginY > b.y + b.h);
   }
 
   function updateHUD() {
@@ -204,8 +234,8 @@
     ctx.fillStyle = isDark ? '#888' : '#aaa';
     for (const cl of clouds) ctx.fillRect(cl.x, cl.y, cl.w, cl.h);
 
-    // Dino
-    ctx.fillStyle = '#2a9d8f';
+    // Dino (cambia color si está sobre obstáculo)
+    ctx.fillStyle = dino.onObstacle ? '#e9c46a' : '#2a9d8f';
     ctx.fillRect(dino.x, dino.y, dino.w, dino.h);
 
     // Obstáculos
@@ -227,6 +257,13 @@
       centeredText('Game Over', W / 2, 80); 
       ctx.font = 'bold 16px system-ui, sans-serif';
       centeredText('Presiona Iniciar, Enter o toca para reiniciar', W / 2, 110);
+    }
+    
+    // Debug: mostrar estado del dino
+    if (dino.onObstacle) {
+      ctx.font = '10px monospace';
+      ctx.fillStyle = '#ff0000';
+      ctx.fillText('ON OBSTACLE', dino.x + 5, dino.y - 5);
     }
   }
 })();
